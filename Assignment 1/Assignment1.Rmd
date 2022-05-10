@@ -1,0 +1,65 @@
+---
+title: "Assignment 1"
+author: "John Busker"
+date: "9-5-2022"
+output:
+  pdf_document: 
+    pandoc_args: --highlight=breezedark
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('deSolve')
+```
+# Week 1: mRNA dynamic
+
+### Opdracht 1
+
+* Welke parameters moet je programmeren?  
+m (Synthese) en r (Afbraak ratio)  
+* Zoek bronnen op internet die uitleggen waar de formule dR/dt = -rR + m vandaan komt.  
+https://www.ncbi.nlm.nih.gov/pmc/articles/PMC403777/  
+https://www.researchgate.net/figure/Calculation-of-the-mRNA-decay-constant-k-d-The-graph-is-not-semilogarithmic-but_fig1_15634531  
+* Teken het biologisch model en leg de vertaling naar de formule uit.  
+![Biologisch model]("biologisch model.png")
+
+De mRNA toename is afhankelijk van synthese. En mRNA afname is afhankelijk van de afbraak ratio.
+
+* Wat is de return waarde van de model functie in R? Waarom return je die en niet R zelf?  
+De return waarde is een list.   
+
+
+### Opdracht 2
+
+```{r}
+# Define the params
+parameters.decreasing <- c(m = 15, r = 0.3)
+parameters.increasing <- c(m = 30, r = 0.2)
+parameters.steady <- c(m = 0, r = 0)
+# Define model
+volume <- function(t,y,parms){
+  with(as.list(c(parms)),{
+         dR <- m - r * y
+         return(list(c(dR)))
+       }
+       )
+}
+# Initial state
+state <- c(Volume = 100)
+# Define time sequence to run the model
+times <- seq(0, 60,  by = 1)
+# Run simulation using continuous approach
+out.decreasing  <- ode(times = times, y = state, parms = parameters.decreasing, 
+                       func = volume, method = "euler")
+out.increasing  <- ode(times = times, y = state, parms = parameters.increasing, 
+                       func = volume, method = "euler")
+out.steady  <- ode(times = times, y = state, parms = parameters.steady, 
+                   func = volume, method = "euler")
+
+plot(out.increasing, out.decreasing, out.steady, lty=1, 
+     col=c("green", "blue", "red"),main="amount of mRNA transcripts over time", 
+     ylab="number of mRNA transcripts", xlab="timepoints")
+legend(30, 135, 
+       legend=c("Increasing over time", "steady-state", "Decreasing over time"),
+       col=c("green", "red", "blue"), lty=1, cex=0.8, text.font=4)
+```
