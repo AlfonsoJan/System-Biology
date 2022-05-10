@@ -1,0 +1,56 @@
+---
+title: "Assignment 2"
+author: "John Busker"
+date: "10-5-2022"
+output:
+  pdf_document: 
+    pandoc_args: --highlight=breezedark
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('deSolve')
+```
+# Week 2: Glucocorticoid receptor dynamica
+
+### Opdracht 1
+
+```{r}
+parameters <- c(Ks_RM = 2.90,
+                IC50_Rm = 26.2,
+                Kon = 0.00329,
+                Kt = 0.63,
+                Kre = 0.57,
+                Rf = 0.49,
+                Kd_r = 0.0572,
+                Kd_rm = 0.612,
+                Ks_r = 3.22,
+                D = 20)
+
+state <- c(Rm0 = 4.74,
+           R0 = 267,
+           DR = 0,
+           DRn = 0)
+
+
+times <- seq(0, 48, by = 1)
+
+
+volume <- function(t,y,parms){
+  with(as.list(c(y, parms)),{
+         dmRNA <- Ks_RM * (1- (DRn / (IC50_Rm + DRn))) - Kd_rm * Rm0
+         dR <- Ks_r * dmRNA + Rf * Kre * DRn - Kon * D * R0 - Kd_r * R0
+         dDR <- Kon * D * R0 - Kt * DR
+         dDRn <- Kt * DR - Kre * DRn
+         return(list(c(dmRNA, dR, dDR, dDRn)))
+       }
+       )
+}
+
+out <- ode(times = times, y = state, parms = parameters, func = volume, method="euler")
+
+plot(out, ylab=c("receptor mRNA", "free receptor density", 
+                 "drug-receptor complex", "activated receptor complex"), 
+     main="")
+mtext("Lorenz model")
+```
