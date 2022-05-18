@@ -1,0 +1,286 @@
+---
+title: "Assignment 2"
+author: "John Busker"
+date: "10-5-2022"
+output:
+  pdf_document: 
+    pandoc_args: --highlight=breezedark
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library('deSolve')
+```
+
+
+Opdracht 1 vraag 2
+```{r, warning=F, comment=NA}
+parameters <- c(Ks_RM = 2.90,
+                IC50_Rm = 26.2,
+                Kon = 0.00329,
+                Kt = 0.63,
+                Kre = 0.57,
+                Rf = 0.49,
+                Kd_r = 0.0572,
+                Kd_rm = 0.612,
+                Ks_r = 3.22,
+                D = 0)
+
+state <- c(Rm0 = 4.74,
+           R0 = 267,
+           DR = 0,
+           DRn = 0)
+
+times <- seq(0, 48, by = 1)
+
+volume <- function(t,y,parms){
+  with(as.list(c(y, parms)),{
+         dmRNA <- Ks_RM * (1- (DRn / (IC50_Rm + DRn))) - (Kd_rm * Rm0)
+         dR <- (Ks_r * Rm0) + (Rf * Kre * DRn) - (Kon * D * R0) - (Kd_r * R0)
+         dDR <- (Kon * D * R0) - (Kt * DR)
+         dDRn <- (Kt * DR) - (Kre * DRn)
+         return(list(c(dmRNA, dR, dDR, dDRn)))
+       }
+       )
+}
+
+value <- c(20, 5, 35)
+
+for (val in value) {
+parameters["D"] <- val*1000/374.471
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+par(mfrow=c(2,2))
+plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 5))
+plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 300))
+plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 70))
+plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
+     xlab="time", xlim=c(0, 48), ylim=c(0, 70))
+mtext(paste("D value of:", val), side = 3, line = -13, outer = TRUE, 
+      cex=1.3, font=1.3)
+cat("The Receptor model with the D value of:", val)
+}
+```
+
+
+As you can see if you lower the D value, the amount of mRNA receptor and free receptor density gets higher dan with a value of 20. But drug-receptor complex and activated drug complex goes down. If you up tha value of D than the amount of mRNA receptor get slightly lower, the free receptor density is lower than before. Drug-receptor complex and activated drug complex have a higher peak than before and has a slightly higher equity.
+
+
+
+
+---
+
+# Assignment 2
+
+First we created a function that plot all the results of the `ode` function.
+
+```{r}
+plotOde <- function(ode) {
+par(mfrow=c(2,2))
+plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 5))
+plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 300))
+plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 70))
+plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
+     xlab="time", xlim=c(0, 48), ylim=c(0, 70))
+mtext("Receptor model", side = 3, line = -12, outer = TRUE, 
+      cex=1.1, font=1.3)
+}
+```
+
+We reset all the parameters to the correct values. And all the other params for the `ode` function.
+
+```{r}
+parameters <- c(Ks_RM = 2.90,
+                IC50_Rm = 26.2,
+                Kon = 0.00329,
+                Kt = 0.63,
+                Kre = 0.57,
+                Rf = 0.49,
+                Kd_r = 0.0572,
+                Kd_rm = 0.612,
+                Ks_r = 3.22,
+                D = 20*1000/374.471)
+
+state <- c(Rm0 = 4.74,
+           R0 = 267,
+           DR = 0,
+           DRn = 0)
+
+times <- seq(0, 48, by = 1)
+
+volume <- function(t,y,parms){
+  with(as.list(c(y, parms)),{
+         dmRNA <- Ks_RM * (1- (DRn / (IC50_Rm + DRn))) - (Kd_rm * Rm0)
+         dR <- (Ks_r * Rm0) + (Rf * Kre * DRn) - (Kon * D * R0) - (Kd_r * R0)
+         dDR <- (Kon * D * R0) - (Kt * DR)
+         dDRn <- (Kt * DR) - (Kre * DRn)
+         return(list(c(dmRNA, dR, dDR, dDRn)))
+       }
+       )
+}
+```
+
+
+## vraag 1
+
+*What would be the time course concentration of the activated drug-receptor complex if there was no auto-regulation of glucocorticoid receptor, i.e. if there was not effect of drug on the synthesis of the receptor mRNA?*
+
+```{r, fig.cap="The receptor model if there was no auto-regulation of glucocorticoid receptor"}
+volume <- function(t,y,parms){
+  with(as.list(c(y, parms)),{
+         dmRNA <- Ks_RM - (Kd_rm * Rm0)
+         dR <- (Ks_r * Rm0) + (Rf * Kre * DRn) - (Kon * D * R0) - (Kd_r * R0)
+         dDR <- (Kon * D * R0) - (Kt * DR)
+         dDRn <- (Kt * DR) - (Kre * DRn)
+         return(list(c(dmRNA, dR, dDR, dDRn)))
+       }
+       )
+}
+
+
+times <- seq(0, 48, by = 1)
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+The concentration of receptor mRNA doesn't change. As drug-receptor complex and activated receptor complex gets higher, the decrease of free receptor density slows down to a steady state.
+
+
+
+## vraag 3
+
+*Different corticosteroids show different association rates from receptors (kon) and different dissociation rates (in this model reflected by kre). Assuming the same concentrations of the drug, what is the effect of different values of kon and kre (consider 2 and 5 times increase and decrease of both parameters separately) on the receptor and mRNA dynamics?*
+
+```{r, fig.cap="The receptor model and the effect of a decreased 5 fold value change of Kon"}
+volume <- function(t,y,parms){
+  with(as.list(c(y, parms)),{
+         dmRNA <- Ks_RM * (1- (DRn / (IC50_Rm + DRn))) - (Kd_rm * Rm0)
+         dR <- (Ks_r * Rm0) + (Rf * Kre * DRn) - (Kon * D * R0) - (Kd_r * R0)
+         dDR <- (Kon * D * R0) - (Kt * DR)
+         dDRn <- (Kt * DR) - (Kre * DRn)
+         return(list(c(dmRNA, dR, dDR, dDRn)))
+       }
+       )
+}
+
+parameters["Kon"] <- 0.00329/5
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+```{r, fig.cap="The receptor model and the effect of a decreased 2 fold value change of Kon"}
+parameters["Kon"] <- 0.00329/2
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+
+```{r, fig.cap="The receptor model and the effect of a increased 2 fold value change of Kon"}
+parameters["Kon"] <- 0.00329*2
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+
+```{r, fig.cap="The receptor model and the effect of a increased 5 fold value change of Kon"}
+parameters["Kon"] <- 0.00329*5
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+parameters["Kon"] <- 0.00329
+```
+
+
+
+```{r, fig.cap="The receptor model and the effect of a decreased 5 fold value change of Kre"}
+parameters["Kre"] <- 0.57/5
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+
+```{r, fig.cap="The receptor model and the effect of a decreased 2 fold value change of Kre"}}
+parameters["Kre"] <- 0.57/2
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+
+```{r, fig.cap="The receptor model and the effect of a increased 2 fold value change of Kre"}
+parameters["Kre"] <- 0.57*2
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+
+```{r, fig.cap="The receptor model and the effect of a increased 5 fold value change of Kre"}
+parameters["Kre"] <- 0.57*5
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+parameters["Kre"] <- 0.57
+```
+
+
+
+## vraag 4
+
+*What would happen if the synthesis of the receptor was completely blocked?*
+
+```{r, fig.cap="The receptor model if the synthesis of the receptor was completely blocked"}
+parameters["Ks_RM"] <- 0
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+The concentration of receptor mRNA steadily goes down to almost 0. Drug-receptor complex and activated receptor complex gets higher, until there isn't enough free receptor density.
+
+
+
+## vraag 5
+
+*What is the dynamic of the system when the baseline rate of production of mRNA of the receptor is increased or decreased 2 or 5 fold?*
+
+```{r, fig.cap="The receptor model if the baseline rate of production of mRNA of the receptor is decreased 5 fold"}
+parameters["Ks_RM"] <- 2.9/5
+parameters["Kd_rm"] <- 2.9/5/4.74
+times <- seq(0, 48, by = 1)
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+```{r, fig.cap="The receptor model if the baseline rate of production of mRNA of the receptor is decreased 2 fold"}
+parameters["Ks_RM"] <- 2.9/2
+parameters["Kd_rm"] <- 2.9/2/4.74
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+```{r, fig.cap="The receptor model if the baseline rate of production of mRNA of the receptor is increased 2 fold"}
+parameters["Ks_RM"] <- 2.9*2
+parameters["Kd_rm"] <- 2.9*2/4.74
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+```{r, fig.cap="The receptor model if the baseline rate of production of mRNA of the receptor is increased 5 fold"}
+parameters["Ks_RM"] <- 2.9*5
+parameters["Kd_rm"] <- 2.9*5/4.74
+out <- ode(times = times, y = state, parms = parameters, func = volume)
+plotOde(out)
+```
+
+
+Almost nothing changed than before. Nothing significant changed than before the increased/decreased 2/5 fold change.
