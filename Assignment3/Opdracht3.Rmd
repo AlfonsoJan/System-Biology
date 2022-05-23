@@ -1,15 +1,12 @@
 ---
 title: "Assignment 3"
 author: "John Busker & Sven Schoonen"
-date: "20-5-2022"
-output:
-  pdf_document: 
-    pandoc_args: --highlight=breezedark
-    fig_caption: yes
+date: "23-5-2022"
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, fig.height=4, fig.width=5)
+knitr::opts_chunk$set(echo = TRUE)
 library('deSolve')
 ```
 
@@ -17,29 +14,11 @@ library('deSolve')
 
 ## Assignment 1
 
-We have to compare the data from the experiment with the simulation data, to assess the model validity. The best way to do this is plotting the model results and the experimental results in one graph. The model results have one value per time unit, the experimental results have multiple values per time unit. Either plot all data points of the experimental data using a scatterplot or calculate the median results for each time unit and plot a line of these median points.
-
 [1]*Why is it best practice to plot the median for the experimental data?*
 
-The median represents that middle value, cutting the set of values in half — 50% of the data values fall below and 50% lie above the median. No matter the shape of the distribution, the median is the measure of central tendency reflecting the middle position of the data values.
+The median represents that middle value, cutting the set of values in half — 50% of the data values fall below and 50% lie above the median. No matter the shape of the distribution, the median is the measure of central tendency reflecting the middle position of the data values. We used the median to see the trend in the data. Wih the median you can see the outliers in the data.
 
 [2]*How do the results of the simulations depend on the dose and concentration of the drug?*
-
-```{r, echo=FALSE}
-#A function that plot all the results of the `ode` function.
-plotOde <- function(ode, time=48) {
-par(mfrow=c(2,2))
-plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
-     xlim=c(0, time), ylim=c(0, 5))
-plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
-     xlim=c(0, time), ylim=c(0, 300))
-plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
-     xlim=c(0, time), ylim=c(0, 70))
-plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
-     xlab="time", xlim=c(0, time), ylim=c(0, 70))
-}
-```
-
 
 ```{r, echo=FALSE}
 parameters <- c(Ks_RM = 2.90,
@@ -57,10 +36,9 @@ state <- c(Rm0 = 4.74,
            R0 = 267,
            DR = 0,
            DRn = 0)
-
 times <- seq(0, 48, by = 1)
 
-volume <- function(t,y,parms){
+mRNA <- function(t,y,parms){
   with(as.list(c(y, parms)),{
          dmRNA <- Ks_RM * (1- (DRn / (IC50_Rm + DRn))) - (Kd_rm * Rm0)
          dR <- (Ks_r * Rm0) + (Rf * Kre * DRn) - (Kon * D * R0) - (Kd_r * R0)
@@ -70,111 +48,146 @@ volume <- function(t,y,parms){
        }
        )
 }
+
+out <- ode(times = times, y = state, parms = parameters, func = mRNA)
+par(mfrow=c(2,2))
+plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 5))
+plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 300))
+plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 70))
+plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
+     xlab="time", xlim=c(0, 48), ylim=c(0, 70))
 ```
 
+*Figure 1: The normal receptor model*
 
-```{r, echo=FALSE, fig.cap="The normal receptor model"}
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
-
-
-```{r, echo=FALSE, fig.cap="The receptor model with a lower D value"}
+```{r, echo=F}
 parameters["D"] <- 5*1000/374.471
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
+out <- ode(times = times, y = state, parms = parameters, func = mRNA)
+par(mfrow=c(2,2))
+plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 5))
+plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 300))
+plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 70))
+plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
+     xlab="time", xlim=c(0, 48), ylim=c(0, 70))
 ```
 
+*Figure 1: The receptor model with a lower D value*
 
-```{r, echo=FALSE, fig.cap="The receptor model with a higher D value"}
+```{r, echo=F}
 parameters["D"] <- 35*1000/374.471
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-parameters["D"] <- 20*1000/374.471
+out <- ode(times = times, y = state, parms = parameters, func = mRNA)
+par(mfrow=c(2,2))
+plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 5))
+plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 300))
+plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 70))
+plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
+     xlab="time", xlim=c(0, 48), ylim=c(0, 70))
 ```
 
-\newpage
+*Figure 1: The receptor model with a higher D value*
+
 As you can see if you lower the D value, the amount of mRNA receptor and free receptor density gets higher dan with a value of 20. But drug-receptor complex and activated drug complex goes down. If you up tha value of D than the amount of mRNA receptor get slightly lower, the free receptor density is lower than before. Drug-receptor complex and activated drug complex have a higher peak than before and has a slightly higher equity.
 
 [3]*Are the results of the model in line with experimental data? If not, what could be the reason?*
 
-\newpage
-
-```{r, warning=F, fig.cap="Receptor mRNA model with the data of the experiment", echo=F}
+```{r, warning=F, echo=F}
 data <- read.csv("MPL.csv", na.strings = "NA")
 medians <- aggregate(data[,c("MPL_conc","mRNA","Free_receptor")],list(data$dose,data$time), median, na.rm=T)
 names(medians)[1:2] <- c("dose","time")
 times <- seq(0, 7*24, by = 1)
-out <- ode(y = state, times = times, func = volume, parms = parameters)
+out <- ode(y = state, times = times, func = mRNA, parms = parameters)
 plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", xlim=c(0, 7*24), ylim=c(0, 5))
-
 doses <- c(0.0, 0.1)
 dose_01 <- medians[medians$dose == doses, ]
 dose_03 <- medians[medians$dose == c(0.3, 0.0), ]
-
 points(dose_01$time, dose_01$mRNA,col = "red")
 points(dose_03$time, dose_03$mRNA,col = "blue")
-
 tmp <- aggregate(medians[,c("MPL_conc","mRNA","Free_receptor")],list(medians$time), median, na.rm=T)
-
 points(tmp$Group.1, tmp$mRNA, col='purple', type = "l")
-
 legend("topleft", inset=.15, legend=c("Dosis 0.1", "Dosis 0.3", "Median"),
        col=c("red", "blue", "purple"), fill=c("red", "blue", "purple"), horiz=TRUE, cex=0.8)
 ```
 
+*Figure 1: Receptor mRNA model with the data of the experiment*
 
-
-```{r, warning=F, fig.cap="Receptor mRNA model with the data of the experiment", echo=F}
+```{r, warning=F, echo=F}
 plot(out[,"R0"], type = "l", lwd = 1, ylab="Free receptor", xlab="time", xlim=c(0, 7*24), ylim=c(0, 300))
-
 doses <- c(0.0, 0.1)
 dose_01 <- medians[medians$dose == doses, ]
 dose_03 <- medians[medians$dose == c(0.3, 0.0), ]
-
 points(dose_01$time, dose_01$Free_receptor,col = "red")
 points(dose_03$time, dose_03$Free_receptor,col = "blue")
-
 tmp <- aggregate(medians[,c("MPL_conc","mRNA","Free_receptor")],list(medians$time), median, na.rm=T)
-
 points(tmp$Group.1, tmp$Free_receptor, col='purple', type = "l")
-
 legend("topleft", inset=.15, legend=c("Dosis 0.1", "Dosis 0.3", "Median"),
        col=c("red", "blue", "purple"), fill=c("red", "blue", "purple"), horiz=TRUE, cex=0.8)
 ```
 
-\newpage
+*Figure 1: Receptor mRNA model with the data of the experiment*
 
-The free receptor model follows the data of the experiment. But the concentration of receptor mRNA doesn't follow the experimental data. A reason that is possible is that the data is skewed.
+The free receptor model follows the data of the experiment. But the concentration of receptor mRNA doesn't follow the experimental data. A reason that is possible is that the data is skewed. it is possible that the base level of free receptor oncentration is higher than we suspected. Or the base level or concentration receptor mRNA lower.
 
 ## Assignment 2
 
 [1]*What would be the time course concentration of the activated drug-receptor complex if there was no auto-regulation of glucocorticoid receptor, i.e. if there was not effect of drug on the synthesis of the receptor mRNA?*
-\newpage
-```{r, fig.cap="The receptor model if there was no auto-regulation of glucocorticoid receptor", echo=F}
-volume <- function(t,y,parms){
+
+```{r, echo=F}
+
+parameters <- c(Ks_RM = 2.90,
+                IC50_Rm = 26.2,
+                Kon = 0.00329,
+                Kt = 0.63,
+                Kre = 0.57,
+                Rf = 0.49,
+                Kd_r = 0.0572,
+                Kd_rm = 0.612,
+                Ks_r = 3.22,
+                D = 20*1000/374.471)
+state <- c(Rm0 = 4.74,
+           R0 = 267,
+           DR = 0,
+           DRn = 0)
+
+mRNA <- function(t,y,parms){
   with(as.list(c(y, parms)),{
-         dmRNA <- Ks_RM - (Kd_rm * Rm0)
-         dR <- (Ks_r * Rm0) + (Rf * Kre * DRn) - (Kon * D * R0) - (Kd_r * R0)
-         dDR <- (Kon * D * R0) - (Kt * DR)
+         dmRNA <- Ks_RM * (1- (DRn / (IC50_Rm + DRn))) - (Kd_rm * Rm0)
+         dR <- (Ks_r * Rm0) + (Rf * Kre * DRn) - (Kon * R0) - (Kd_r * R0)
+         dDR <- (Kon * R0) - (Kt * DR)
          dDRn <- (Kt * DR) - (Kre * DRn)
          return(list(c(dmRNA, dR, dDR, dDRn)))
        }
        )
 }
-
-
 times <- seq(0, 48, by = 1)
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
+out <- ode(times = times, y = state, parms = parameters, func = mRNA)
+par(mfrow=c(2,2))
+plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 5))
+plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 300))
+plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 70))
+plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
+     xlab="time", xlim=c(0, 48), ylim=c(0, 70))
 ```
 
-The concentration of receptor mRNA doesn't change. As drug-receptor complex and activated receptor complex gets higher, the decrease of free receptor density slows down to a steady state.
+*Figure 1: The receptor model if there was no auto-regulation of glucocorticoid receptor*
+
+Receptor mRNA and free receptor density barely goes down from the beginning state. And drug-receptor and activated receptor complex barely goes up from the beginning state.
 
 [2]*What is the time course of receptor and mRNA concentrations when the drug treatment is stopped?*
-\newpage
-```{r, fig.cap="The receptor model if there was no auto-regulation of glucocorticoid receptor", echo=F}
-volume <- function(t,y,parms){
+
+```{r, echo=F}
+mRNA <- function(t,y,parms){
   with(as.list(c(y, parms)),{
     if(t < 48) {
          dmRNA <- Ks_RM * (1- (DRn / (IC50_Rm + DRn))) - (Kd_rm * Rm0)
@@ -193,21 +206,35 @@ volume <- function(t,y,parms){
        }
        )
 }
-
 times_param = 166
-
 times <- seq(0, times_param, by = 1)
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out, times_param)
+out <- ode(times = times, y = state, parms = parameters, func = mRNA)
+par(mfrow=c(2,2))
+plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
+     xlim=c(0, 166), ylim=c(0, 5))
+abline(v=48, col='red', lty=2)
+plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
+     xlim=c(0, 166), ylim=c(0, 300))
+abline(v=48, col='red', lty=2)
+plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
+     xlim=c(0, 166), ylim=c(0, 70))
+abline(v=48, col='red', lty=2)
+plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
+     xlab="time", xlim=c(0, 166), ylim=c(0, 70))
+abline(v=48, col='red', lty=2)
 ```
+
+*Figure 2: The receptor model if there was no auto-regulation of glucocorticoid receptor*
 
 The concentration of receptor mRNA doesn't change. As drug-receptor complex and activated receptor complex gets higher, the decrease of free receptor density slows down to a steady state.
 
-\newpage
 [3]*What is the effect of different values of kon and kre on the receptor and mRNA dynamics?*
 
-```{r, fig.cap="The receptor model and the effect of a decreased 5 fold value change of Kon", echo=F}
-volume <- function(t,y,parms){
+```{r, echo=F}
+times <- seq(0, 48, by = 1)
+cols = hcl(runif(1,0,359.99) + c(0,120,240), 100, 65)
+
+mRNA <- function(t,y,parms){
   with(as.list(c(y, parms)),{
          dmRNA <- Ks_RM * (1- (DRn / (IC50_Rm + DRn))) - (Kd_rm * Rm0)
          dR <- (Ks_r * Rm0) + (Rf * Kre * DRn) - (Kon * D * R0) - (Kd_r * R0)
@@ -219,113 +246,156 @@ volume <- function(t,y,parms){
 }
 
 parameters["Kon"] <- 0.00329/5
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
+out.kon.1 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 
-
-```{r, fig.cap="The receptor model and the effect of a decreased 2 fold value change of Kon", echo=F}
 parameters["Kon"] <- 0.00329/2
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
+out.kon.2 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 
-
-```{r, fig.cap="The receptor model and the effect of a increased 2 fold value change of Kon", echo=F}
-parameters["Kon"] <- 0.00329*2
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
-
-
-```{r, fig.cap="The receptor model and the effect of a increased 5 fold value change of Kon", echo=F}
 parameters["Kon"] <- 0.00329*5
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
+out.kon.3 <- ode(times = times, y = state, parms = parameters, func = mRNA)
+
+parameters["Kon"] <- 0.00329*2
+out.kon.4 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 parameters["Kon"] <- 0.00329
+
+par(mfrow=c(2,2),xpd=NA)
+
+plot(out.kon.1[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", xlim=c(0, 48), ylim=c(0, 5), col=cols[1])
+lines(out.kon.2[,"Rm0"], col=cols[2])
+lines(out.kon.3[,"Rm0"], col=cols[3])
+lines(out.kon.4[,"Rm0"])
+
+plot(out.kon.1[,"R0"],type = "l", lwd = 1, ylab="free receptor density", xlab="time", xlim=c(0, 48), ylim=c(0, 300), col=cols[1])
+lines(out.kon.2[,"R0"], col=cols[2])
+lines(out.kon.3[,"R0"], col=cols[3])
+lines(out.kon.4[,"R0"])
+
+plot(out.kon.1[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", xlim=c(0, 48), ylim=c(0, 120), col=cols[1])
+lines(out.kon.2[,"DR"], col=cols[2])
+lines(out.kon.3[,"DR"], col=cols[3])
+lines(out.kon.4[,"DR"])
+
+plot(out.kon.1[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", xlab="time", xlim=c(0, 48), ylim=c(0, 120), col=cols[1])
+lines(out.kon.2[,"DRn"], col=cols[2])
+lines(out.kon.3[,"DRn"], col=cols[3])
+lines(out.kon.4[,"DRn"])
+
+
+legend(-40,250,ncol=2, c("5 fold decreased","2 fold decreased","5 fold increased", "2 fold increased"), 
+    fill=c(cols[1],cols[2],cols[3], "black"))
 ```
 
+*Figure 3: The receptor model and the effect of a increased/decreased fold value change of Kon*
 
-```{r, fig.cap="The receptor model and the effect of a decreased 5 fold value change of Kre", echo=F}
+
+```{r, echo=F}
 parameters["Kre"] <- 0.57/5
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
+out.kre.1 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 
-
-```{r, fig.cap="The receptor model and the effect of a decreased 2 fold value change of Kre", echo=F}
 parameters["Kre"] <- 0.57/2
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
+out.kre.2 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 
-
-```{r, fig.cap="The receptor model and the effect of a increased 2 fold value change of Kre", echo=F}
-parameters["Kre"] <- 0.57*2
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
-
-
-```{r, fig.cap="The receptor model and the effect of a increased 5 fold value change of Kre", echo=F}
 parameters["Kre"] <- 0.57*5
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
+out.kre.3 <- ode(times = times, y = state, parms = parameters, func = mRNA)
+
+parameters["Kre"] <- 0.57*2
+out.kre.4 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 parameters["Kre"] <- 0.57
+
+par(mfrow=c(2,2),xpd=NA)
+
+plot(out.kre.1[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", xlim=c(0, 48), ylim=c(0, 5), col=cols[1])
+lines(out.kre.2[,"Rm0"], col=cols[2])
+lines(out.kre.3[,"Rm0"], col=cols[3])
+lines(out.kre.4[,"Rm0"])
+
+plot(out.kre.1[,"R0"],type = "l", lwd = 1, ylab="free receptor density", xlab="time", xlim=c(0, 48), ylim=c(0, 300), col=cols[1])
+lines(out.kre.2[,"R0"], col=cols[2])
+lines(out.kre.3[,"R0"], col=cols[3])
+lines(out.kre.4[,"R0"])
+
+plot(out.kre.1[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", xlim=c(0, 48), ylim=c(0, 120), col=cols[1])
+lines(out.kre.2[,"DR"], col=cols[2])
+lines(out.kre.3[,"DR"], col=cols[3])
+lines(out.kre.4[,"DR"])
+
+plot(out.kre.1[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", xlab="time", xlim=c(0, 48), ylim=c(0, 120), col=cols[1])
+lines(out.kre.2[,"DRn"], col=cols[2])
+lines(out.kre.3[,"DRn"], col=cols[3])
+lines(out.kre.4[,"DRn"])
+
+legend(-40,250,ncol=2, c("5 fold decreased","2 fold decreased","5 fold increased", "2 fold increased"), 
+    fill=c(cols[1],cols[2],cols[3], "black"))
 ```
 
-\newpage
+*Figure 4: The receptor model and the effect of a increased/decreased fold value change of Kre*
+
 If Kon is increased than you have a higher concentration drug-receptor complex and activated receptor complex and vice versa. If Kre is increased than you have a lower concentration drug-receptor complex and activated receptor and vice versa.
 
 [4]*What would happen if the synthesis of the receptor was completely blocked?*
 
-```{r, fig.cap="The receptor model if the synthesis of the receptor was completely blocked", echo=F}
-parameters["Ks_RM"] <- 0
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-parameters["Ks_RM"] <- 0.612
+```{r, echo=F}
+parameters["Ks_r"] <- 0
+out <- ode(times = times, y = state, parms = parameters, func = mRNA)
+par(mfrow=c(2,2))
+plot(out[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 5))
+plot(out[,"R0"], type = "l", lwd = 1, ylab="free receptor density", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 300))
+plot(out[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", 
+     xlim=c(0, 48), ylim=c(0, 70))
+plot(out[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", 
+     xlab="time", xlim=c(0, 48), ylim=c(0, 70))
+parameters["Ks_RM"] <- 3.22
 ```
 
-\newpage
+*Figure 5: The receptor model if the synthesis of the receptor was completely blocked*
+
 The concentration of receptor mRNA steadily goes down to almost 0. Drug-receptor complex and activated receptor complex gets higher, until there isn't enough free receptor density.
 
-\newpage
-[5]*What is the dynamic of the system when the baseline rate of production of mRNA of the receptor is increased or decreased 2 or 5 fold?*
-
-
-
-```{r, fig.cap="The receptor model if the baseline rate of production of mRNA of the receptor is decreased 5 fold", echo=F}
+```{r, echo=F}
 parameters["Ks_RM"] <- 2.9/5
 parameters["Kd_rm"] <- 2.9/5/4.74
-times <- seq(0, 48, by = 1)
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
+out.dec.5 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 
-
-
-```{r, fig.cap="The receptor model if the baseline rate of production of mRNA of the receptor is decreased 2 fold", echo=F}
 parameters["Ks_RM"] <- 2.9/2
 parameters["Kd_rm"] <- 2.9/2/4.74
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
+out.dec.2 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 
-
-```{r, fig.cap="The receptor model if the baseline rate of production of mRNA of the receptor is increased 2 fold", echo=F}
 parameters["Ks_RM"] <- 2.9*2
 parameters["Kd_rm"] <- 2.9*2/4.74
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
-```
+out.inc.2 <- ode(times = times, y = state, parms = parameters, func = mRNA)
 
-
-```{r, fig.cap="The receptor model if the baseline rate of production of mRNA of the receptor is increased 5 fold", echo=F}
 parameters["Ks_RM"] <- 2.9*5
 parameters["Kd_rm"] <- 2.9*5/4.74
-out <- ode(times = times, y = state, parms = parameters, func = volume)
-plotOde(out)
+out.inc.5 <- ode(times = times, y = state, parms = parameters, func = mRNA)
+
+par(mfrow=c(2,2),xpd=NA)
+
+plot(out.dec.5[,"Rm0"], type = "l", lwd = 1, ylab="receptor mRNA", xlab="time", xlim=c(0, 48), ylim=c(0, 5), col=cols[1])
+lines(out.dec.2[,"Rm0"], col=cols[2])
+lines(out.inc.2[,"Rm0"], col=cols[3])
+lines(out.inc.5[,"Rm0"])
+
+plot(out.dec.5[,"R0"],type = "l", lwd = 1, ylab="free receptor density", xlab="time", xlim=c(0, 48), ylim=c(0, 300), col=cols[1])
+lines(out.dec.2[,"R0"], col=cols[2])
+lines(out.inc.2[,"R0"], col=cols[3])
+lines(out.inc.5[,"R0"])
+
+plot(out.dec.5[,"DR"], type = "l", lwd = 1, ylab="drug-receptor complex", xlab="time", xlim=c(0, 48), ylim=c(0, 100), col=cols[1])
+lines(out.dec.2[,"DR"], col=cols[2])
+lines(out.inc.2[,"DR"], col=cols[3])
+lines(out.inc.5[,"DR"])
+
+plot(out.dec.5[,"DRn"], type = "l", lwd = 1, ylab="activated receptor complex", xlab="time", xlim=c(0, 48), ylim=c(0, 100), col=cols[1])
+lines(out.dec.2[,"DRn"], col=cols[2])
+lines(out.inc.2[,"DRn"], col=cols[3])
+lines(out.inc.5[,"DRn"])
+
+legend(-40,210,ncol=2, c("5 fold decreased","2 fold decreased","2 fold increased", "5 fold increased"), 
+    fill=c(cols[1],cols[2],cols[3], "black"))
 ```
 
-\newpage
+*Figure 6: The receptor model if the baseline rate of production of mRNA of the receptor is increased or decreased with a 2 or 5 fold change*
+
 Almost nothing changed than before. Nothing significant changed than before the increased/decreased 2/5 fold change.
