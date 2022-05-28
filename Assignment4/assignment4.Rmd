@@ -9,6 +9,9 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 library('deSolve')
 ```
+# Abstract
+
+The results are presented of computer simulation of glucocorticoid receptor dynamics. They're are the most effective anti-inflammatory therapy for asthma. Glucocorticoids suppress inflammation via several molecular mechanisms.
 
 # Introduction
 
@@ -17,8 +20,6 @@ Corticosteroids are hormones produced by the adrenal cortex or synthetic analogu
 * Mineralocorticoids  *mainly affect the water and salt balance.*  
 * Glucocorticoids *have an effect on carbohydrate, protein and fat metabolism.*
 
-
-The production (synthesis) mRNA is constant and the degradation of mRNA is a ratio that depends on the amount of mRNA. The amount of mRNA in time change depends on what is being made and broken down. mRNA affects the receptor, more mRNA means more synthesis of the receptor. The same applies to degradation. The speed of binding is equal to the amount of product of the activity. What is bound to the MPL concentration is thus withdrawn from the free receptor concentration. A part also goes to the nucleus and this depends on the amount that is available. There is also a factor because some of it goes back and becomes available and affects the amount of free receptor concentration. But the synthesis can still be influenced with a repression factor by the drug complex.
 
 # Methods
 
@@ -385,4 +386,4 @@ When K~s_Rm~ and K~d_Rm~ are increased/decreased with a 2/5 fold change almost n
 
 The free receptor model follows the data of the experiment. But the concentration of receptor mRNA doesn't really follow the experimental data. A reason that is possible is that the data is skewed. it is possible that the base level of free receptor concentration is higher than we suspected. Or the base level or concentration receptor mRNA lower.
 
-With more data you can really compare the experimental data with the model.
+There is not enough data to validate the model. With so little data, it is hard to say whether the model is correct. With more data you can really compare the experimental data with the model.
