@@ -27,7 +27,7 @@ Themaopdracht 8
 
 # Abstract
 
-We established and observed two different models of Central Regulatory Circuit of Drosophila from different articles and compared them. The models describe the Central Regulatory Circuit which acts in the early stage of the *Drosophila melanogaster* mechanoreceptors morphogenesis. The mian component of the Central Regulatory Circuit is the complex of *Achaete-Scute* genes.
+We established and observed two different models of Central Regulatory Circuit of Drosophila from different articles and compared them. The models describe the Central Regulatory Circuit which acts in the early stage of the *Drosophila melanogaster* mechanoreceptors morphogenesis. The main component of the Central Regulatory Circuit is the complex of *Achaete-Scute* genes.
 
 \newpage
 
