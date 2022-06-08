@@ -1,8 +1,7 @@
 ---
-title: "Final Report"
-author: "John Busker & Sven Schoonen"
-date: "8-6-2022"
-output: html_document
+output:
+  pdf_document: 
+    pandoc_args: --highlight=breezedark
 ---
 
 ```{r setup, include=FALSE}
@@ -11,9 +10,32 @@ library(deSolve)
 library(randomcoloR)
 ```
 
+# Comparing Two Different Models.
+
+## The comparison of two different models of the Central Regulatory Circuit of Drosophila.
+
+\vspace*{\fill}
+\begin{flushright}
+John Busker, Sven Schoonen\\
+352905 ...\\
+BFV2\\
+8-6-2022\\
+Themaopdracht 8
+\end{flushright}
+
+\newpage
+
+# Abstract
+
+We established and observed two different models of Central Regulatory Circuit of Drosophila from different articles and compared them. The models describe the Central Regulatory Circuit which acts in the early stage of the *Drosophila melanogaster* mechanoreceptors morphogenesis. The mian component of the Central Regulatory Circuit is the complex of *Achaete-Scute* genes.
+
+\newpage
+
+# Result
+
 ```{r}
 plotModel <- function(df){
-  plot(df$time, df$ASC, type='l',ylim=c(0, 4), col=cols[1], lwd=2, xlab="time", ylab="concentration")
+plot(df$time, df$ASC, type='l',ylim=c(0, 4), col=cols[1], lwd=2, xlab="time", ylab="concentration")
 lines(df$time, df$Hairy, col=cols[2], lwd=2)
 lines(df$time, df$Senseless, col=cols[3], lwd=2)
 lines(df$time, df$Scratch, col=cols[4], lwd=2)
@@ -111,7 +133,7 @@ p0 = 0
 ```
 
 
-```{r, echo=T}
+```{r}
 x_model <- function(t, dt, startValue, point, args, ...) {
   if (t < 0) { startValue }
   else {
@@ -185,7 +207,7 @@ names(traj) <- c("time", "ASC", "Hairy", "Senseless", "Scratch", "Charlatan", "P
 plotModel(traj)
 ```
 
-```{r, echo=T}
+```{r}
 x_model <- function(t, dt, startValue, point, args, ...) {
   if (t < 0) { startValue }
   else {
@@ -235,7 +257,6 @@ p_model <- function(t, dt, startValue, point, args, ...) {
   }
 }
 ```
-
 
 ```{r}
 traj <- data.frame(dede(start, t, func = model, parms = parameters))
