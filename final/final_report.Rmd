@@ -8,6 +8,7 @@ output:
 knitr::opts_chunk$set(echo = F)
 library(deSolve)
 library(randomcoloR)
+library(pander)
 ```
 
 # Comparing Two Different Models.
@@ -17,23 +18,90 @@ library(randomcoloR)
 \vspace*{\fill}
 \begin{flushright}
 John Busker, Sven Schoonen\\
-352905 ...\\
+352905, 407226\\
 BFV2\\
-8-6-2022\\
+9-6-2022\\
 Themaopdracht 8
 \end{flushright}
 
 \newpage
 
+
 # Abstract
 
-We established and observed two different models of Central Regulatory Circuit of Drosophila from different articles and compared them. The models describe the Central Regulatory Circuit which acts in the early stage of the *Drosophila melanogaster* mechanoreceptors morphogenesis. The main component of the Central Regulatory Circuit is the complex of *Achaete-Scute* genes.
+We established and observed two different models of Central Regulatory Circuit of Drosophila (CRC) from different articles and compared them. The models describe the Central Regulatory Circuit which acts in the early stage of the *Drosophila melanogaster* mechanoreceptors morphogenesis. The main component of the Central Regulatory Circuit is the complex of *Achaete-Scute* genes.
+
+\newpage
+
+# Abbreviations
+
+**CRC** :  Central Regulatory Circuit
+
+\newpage
+
+# Table of Contents
+
+[Abstract](#abstract) \hfill 2
+
+[Abbreviations](#abbreviations) \hfill 3
+
+[Table of Contents](#table-of-contents) \hfill 4  
+
+- 1. [Introduction](#introduction) \hfill 5
+- 2. [Methods](#methods) \hfill 6
+- 3. [Result](#result) \hfill 8
+  - 3.1 [Models](#models)
+- 4. [Discussion](#discussion) \hfill 10
+- 5. [Conclusion](#conclusion) \hfill 10
+  
+[References](#references) \hfill 11
+
+\newpage
+
+# Introduction
+
+...
+
+\newpage
+
+# Methods
+
+Two different models have been searched for. Both models deal with the CRC circuit, but they use different models. First, both models are constructed, with all parameters and values and such. The model has been created with the `dede` function of the deSolve package. These models are visualised with the `plot` function of r.
+
+![The CRC of the gene networks of the morphogenesis system of Drosophila mechanoreceptors.](CRC_diag.png)
+
+This model has been created by the first article [1]. This is the differential equation of this model:
+
+$\frac{dx}{dt} = k_{x}\frac{\sigma_{1}(Dx) + \sigma_{3}(z) + \sigma_{5}(w)}{(1 + Gy)(1 + Ex)} - (1 + p(t-\Delta{t})US)m_{x}x$  
+$\frac{dy}{dt} = k_{y}\frac{C}{d1 + u^{m_{r}}}$  
+$\frac{dz}{dt} = k_{z}s_{3}(Dx) - m_{s}z$  
+$\frac{du}{dt} = k_{u}s_{4}(Dx) - m_{u}u$  
+$\frac{dw}{dt} = k_{w}s_{5}(Dx) - m_{w}w$  
+$\frac{dp}{dt} = k_{p}\frac{s_{6}(Dx)h(t-\Delta{t})(t-\Delta{t}^2)}{L + h(t-\Delta{t})(t-\Delta{t})^2}$  
+
+\newpage
+
+![The other CRC of the gene networks of the morphogenesis system of Drosophila mechanoreceptors.](CRC_diag_2.png)
+
+This is the other model that has been created by the second article [2]. This is the differential equation used by the article:
+
+$\frac{dx}{dt} = \frac{\sigma_{1}(Dx) + \sigma_{3}(z) + \sigma_{5}(w)}{(1 + Gy)(1 + Ex)} - k_{x}(1 + p(t-\Delta{t})US)x$  
+$\frac{dy}{dt} = \frac{C}{d1 + u}-k_{y}y$  
+$\frac{dz}{dt} = s_{3}(Dx) - k_{z}z$  
+$\frac{du}{dt} = s_{4}(Dx) - k_{u}u$  
+$\frac{dw}{dt} = s_{5}(Dx) - k_{w}w$  
+$\frac{dp}{dt} = \frac{s_{6}(Dx)h(t-\Delta{t})(t-\Delta{t}^2)}{1 + (t-\Delta{t})^2} -  k_{p}p$ 
 
 \newpage
 
 # Result
 
+The result of this research papers are two graphs showing the models and the difference.
+
+## Models
+
 ```{r}
+# A function to plot the data
 plotModel <- function(df){
 plot(df$time, df$ASC, type='l',ylim=c(0, 4), col=cols[1], lwd=2, xlab="time", ylab="concentration")
 lines(df$time, df$Hairy, col=cols[2], lwd=2)
@@ -55,9 +123,7 @@ legend("topright",ncol=3, c("AS-C","Hairy","Senseless", "Scratch", "Charlatan", 
   mapply(assign, x, y, MoreArgs = list(envir = parent.frame()))
   invisible()
 }
-
 h <- function(i) i > 0
-
 sigma1 <- function (v) {
   h(v) * d1 * v ^ n1 / (1 + v ^ n1)
 }
@@ -79,7 +145,6 @@ s5 <- function (v) {
 s6 <- function (v) {
   h(v) * a6 * exp((v - b6) / c6) / (1 + exp((v - b6) / c6))
 }
-
 dt_x = 0
 dt_y = 0
 dt_z = 0
@@ -139,80 +204,6 @@ x_model <- function(t, dt, startValue, point, args, ...) {
   else {
     c(x, y, z, u, w, p) %=% point
     c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
-    lagPoint <- (sigma1(D * x) + sigma3(z) + sigma5(w)) / ((1 + Gro * y) * (1 + EMC * x)) - kx * (1 + p_curr * UB * SINA) * x
-  }
-}
-y_model <- function(t, dt, startValue, point, args, ...) {
-  if (t < 0) { startValue }
-  else {
-    c(x, y, z, u, w, p) %=% point
-    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
-    lagPoint <- (C / (d1 + u_curr)) - ky * y_curr
-  }
-}
-z_model <- function(t, dt, startValue, point, args, ...) {
-  if (t < 0) { startValue }
-  else {
-    c(x, y, z, u, w, p) %=% point
-    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
-    lagPoint <- s3(D * x) - kz * z_curr
-  }
-}
-u_model <- function(t, dt, startValue, point, args, ...) {
-  if (t < 0) { startValue }
-  else {
-    c(x, y, z, u, w, p) %=% point
-    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
-    lagPoint <- s4(D * x) - ku * u_curr
-  }
-}
-w_model <- function(t, dt, startValue, point, args, ...) {
-  if (t < 0) { startValue }
-  else {
-    c(x, y, z, u, w, p) %=% point
-    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
-    lagPoint <- s5(D * x) - kw * w_curr
-  }
-}
-p_model <- function(t, dt, startValue, point, args, ...) {
-  if (t < 0) { startValue }
-  else {
-    c(x, y, z, u, w, p) %=% point
-    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
-    lagPoint <- (s6(D * x) * h(t - 12) * (t - 12) ^ 2) / (1 + (t - 12) ^ 2) - kp * p_curr
-  }
-}
-    
-model <- function(t, p, parms, ...) {
-       list(c(x_model(t, dt_x, x0, p), y_model(t, dt_y, y0, p), z_model(t, dt_z, z0, p), u_model(t, dt_u, u0, p), w_model(t, dt_w, w0, p), p_model(t, dt_p, p0, p)))
-}
-```
-
-
-```{r}
-t <- seq(0, 16, by = 0.1)
-start <- c(x0 * kx, y0 * ky, z0 * kz, u0 * ku, w0 * kw, p0 * kp)
-traj <- data.frame(dede(start, t, func = model, parms = parameters))
-
-cols <- distinctColorPalette(6)
-
-plot.new()
-
-rect(par("usr")[1], par("usr")[3],
-     par("usr")[2], par("usr")[4],
-     col = "#fdfbf3")
-par(new = TRUE)
-names(traj) <- c("time", "ASC", "Hairy", "Senseless", "Scratch", "Charlatan", "Phyllopod")
-
-plotModel(traj)
-```
-
-```{r}
-x_model <- function(t, dt, startValue, point, args, ...) {
-  if (t < 0) { startValue }
-  else {
-    c(x, y, z, u, w, p) %=% point
-    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
     lagPoint <- kx * (sigma1(D * x) + sigma3(z) + sigma5(w)) / ((1 + Gro * y) * (1 + EMC * x)) - m1 * x * (1 + p_curr * UB * SINA)
   }
 }
@@ -256,19 +247,127 @@ p_model <- function(t, dt, startValue, point, args, ...) {
     lagPoint <- (s6(D * x) * h(t - 12) * (t - 12) ^ 2) / (1 + (t - 12) ^ 2) - kp * p_curr
   }
 }
+
+CRC.model <- function(t, p, parms, ...) {
+       list(c(x_model(t, dt_x, x0, p), y_model(t, dt_y, y0, p), z_model(t, dt_z, z0, p), u_model(t, dt_u, u0, p), w_model(t, dt_w, w0, p), p_model(t, dt_p, p0, p)))
+}
 ```
 
-```{r}
-traj <- data.frame(dede(start, t, func = model, parms = parameters))
 
-
+```{r, fig.cap="The CRC model of the first article"}
+t <- seq(0, 16, by = 0.1)
+start <- c(x0 * kx, y0 * ky, z0 * kz, u0 * ku, w0 * kw, p0 * kp)
+traj <- data.frame(dede(start, t, func = CRC.model, parms = parameters))
+cols <- distinctColorPalette(6)
 plot.new()
-
 rect(par("usr")[1], par("usr")[3],
      par("usr")[2], par("usr")[4],
      col = "#fdfbf3")
 par(new = TRUE)
 names(traj) <- c("time", "ASC", "Hairy", "Senseless", "Scratch", "Charlatan", "Phyllopod")
-
 plotModel(traj)
 ```
+
+
+The *AS-C* curve increases immediately and reached a steady state, after a while it decreases to about a concentration of below 1.The curve of *Hairy* goes steadily down until *AS-C* decreases. Then the concentration went up.
+
+The other curves *Senseless*, *Scratch* and *Charlatan* all followed the same curve just with a lower value, and it steady went down at the same timepoint as *AS-C*.
+
+*Phyllopod* stays the whole time around 0, untill all the others one decreases/increases.
+
+
+```{r}
+x_model <- function(t, dt, startValue, point, args, ...) {
+  if (t < 0) { startValue }
+  else {
+    c(x, y, z, u, w, p) %=% point
+    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
+    lagPoint <- (sigma1(D * x) + sigma3(z) + sigma5(w)) / ((1 + Gro * y) * (1 + EMC * x)) - kx * (1 + p_curr * UB * SINA) * x
+  }
+}
+y_model <- function(t, dt, startValue, point, args, ...) {
+  if (t < 0) { startValue }
+  else {
+    c(x, y, z, u, w, p) %=% point
+    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
+    lagPoint <- (C / (d1 + u_curr)) - ky * y_curr
+  }
+}
+z_model <- function(t, dt, startValue, point, args, ...) {
+  if (t < 0) { startValue }
+  else {
+    c(x, y, z, u, w, p) %=% point
+    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
+    lagPoint <- s3(D * x) - kz * z_curr
+  }
+}
+u_model <- function(t, dt, startValue, point, args, ...) {
+  if (t < 0) { startValue }
+  else {
+    c(x, y, z, u, w, p) %=% point
+    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
+    lagPoint <- s4(D * x) - ku * u_curr
+  }
+}
+w_model <- function(t, dt, startValue, point, args, ...) {
+  if (t < 0) { startValue }
+  else {
+    c(x, y, z, u, w, p) %=% point
+    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
+    lagPoint <- s5(D * x) - kw * w_curr
+  }
+}
+p_model <- function(t, dt, startValue, point, args, ...) {
+  if (t < 0) { startValue }
+  else {
+    c(x, y, z, u, w, p) %=% point
+    c(x_curr, y_curr, z_curr, u_curr, w_curr, p_curr) %=% point
+    lagPoint <- (s6(D * x) * h(t - 12) * (t - 12) ^ 2) / (1 + (t - 12) ^ 2) - kp * p_curr
+  }
+}
+```
+
+\newpage
+
+```{r, fig.cap="The CRC model of the second article"}
+traj.2 <- data.frame(dede(start, t, func = CRC.model, parms = parameters))
+plot.new()
+rect(par("usr")[1], par("usr")[3],
+     par("usr")[2], par("usr")[4],
+     col = "#fdfbf3")
+par(new = TRUE)
+names(traj.2) <- c("time", "ASC", "Hairy", "Senseless", "Scratch", "Charlatan", "Phyllopod")
+plotModel(traj.2)
+```
+
+The curve of *Hairy* goes steadily down until it reached a steady state. *AS-C* curve reaches a steady state pretty quick, after a while it nose dives to about a concentration of 1.
+
+At the same time, other curves *Senseless*, *Scratch* and *Charlatan* all followed the same curve just with a lower value, and it steady went down at the same timepoint as *AS-C*.
+
+*Phyllopod* stays the whole time around 0, untill all the others one, except *hairy*, reduce.
+
+
+\newpage
+
+# Discussion
+
+We have encountered problems in this papers. There is no concrete experimental data. There is a site, FlyAtlas, but you cannot actually use it.  Firstly, there is nothing about *AS-C*. And secondly, it is not clear which data we should use.
+
+In the second article, they give other parameter values, but if you go to the site mentioned in the article. You get a graph with the same values as the first article, so we used these values. And we have not played with the parameters values to see what happens. But the first article did changed the values and their outcome was this: 'From the biological point of view, this means a ban on the formation of a mechanoreceptor' [1].
+
+We now have two graphs, but we still do not really know which model uses the best differential equation.
+
+# Conclusion
+
+Our goal was to compare two different models of the CRC of Drosophila. The conclusion we draw is that we compared the different models. But we lack the experimental data to see which is good.  
+
+We now have two graphs with two different CRC models, but as mentioned earlier, there is simply no/little experimental data. When more data emerges, we can really compare which model is the best. Or how we can then adjust it so that the model becomes even better.
+
+\newpage
+
+# References
+
+[1] = Bukharina, T.A., Akinshin, A.A., Golubyatnikov, V.P., (2020) 'Mathematical and Numerical Models of the Central Regulatory Circuit of the Morphogenesis System of Drosophila' *Springer* https://link.springer.com/article/10.1134/S1990478920020040 **24-05-22**
+
+[2] = Ayupova, N.B., Demidenko, G.V., Matveeva, I.I., Fadeev, S.I, Zhubr , A.V. (2018) 'MATHEMATICAL AND NUMERICAL MODELS
+OF TWO ASYMMETRIC GENE NETWORKS' *nsc* http://semr.math.nsc.ru/v15/p1271-1283.pdf **24-05-22**
