@@ -49,16 +49,16 @@ In this work, we established and observed two different models of Central Regula
 [Table of Contents](#table-of-contents) \hfill 4  
 
 - 1. [Introduction](#introduction) \hfill 5
-- 2. [Methods](#methods) \hfill 7
-- 3. [Result](#result) \hfill 8
-  - [Models](#models) \hfill 8
-- 4. [Discussion](#discussion) \hfill 10
-- 5. [Conclusion](#conclusion) \hfill 10
+- 2. [Methods](#methods) \hfill 6
+- 3. [Result](#result) \hfill 9
+  - [Models](#models) \hfill 9
+- 4. [Discussion](#discussion) \hfill 11
+- 5. [Conclusion](#conclusion) \hfill 11
   
-[References](#references) \hfill 11
+[References](#references) \hfill 12
 
-[Appendix Code](#appendix-code) \hfill 12  
-[Appendi Graph](#appendix-graph) \hfill 12
+[Appendi Graph](#appendix-graph) \hfill 13  
+[Appendix Code](#appendix-code) \hfill 14  
 
 \newpage
 
@@ -68,7 +68,7 @@ The large bristles function as mechanoreceptors appear for elements of the perip
 
 This bristles structure is practically unchanged in all the species representatives and is a taxonomic character. A mechanoreceptor is made up out of four cells: shaft (trichogen), socket (tormogen), neuron, and glial cell (thecogen). The parent of all these components is the single parental cell (SOP cell—Sensory Organ Precursor cell) [2].
 
-The morphogenesis of macrochaete involves three stages. In the first stage, the proneural clusters segregate from the ectodermal cells of the wing imaginal disc. At the second stage, the SOP cell is determined and the position is specified. In the third stage, the SOP cell go through two asymmetric divisions , and the daughter cells convert into the components of mechanoreceptor [5].
+The morphogenesis of macrochaete involves three stages. In the first stage, the proneural clusters segregate from the ectodermal cells of the wing imaginal disc. At the second stage, the SOP cell is determined, and the position is specified. In the third stage, the SOP cell go through two asymmetric divisions, and the daughter cells convert into the components of mechanoreceptor [5].
 
 Small bristles are large in numbers, and have no strictly determined localization, being organized in more or less regular rows. The number and location of large bristles are stringently determined. These represent a species specific characteristic. The bristle pattern characteristic of each species had been evolutionarily established by losing part of macrochaetes from the common ancestral set [5].
 
@@ -78,7 +78,7 @@ Daughterless (DA), Extramacrochaete (EMC), Groucho (GRO), Seven in one (SINA) an
 
 Morphogenesis of drosophila mechanoreceptor is a perfect example of a gene network supporting acyclic processes. Which ensures reaching a steady finite state.
 
-Formalized description, systematization, and analysis of gene networks with the help of mathematical and numerical modeling allows to understand mechanisms of functioning of these systems and to predict their behavior in different conditions. On the other hand, this mathematical approach gives possibility to construct artificial analogues of these natural systems in order to use them in various applications.
+Formalized description, systematization, and analysis of gene networks with the help of mathematical and numerical modeling allows understanding mechanisms of functioning of these systems and to predict their behavior in different conditions. On the other hand, this mathematical approach gives possibility to construct artificial analogues of these natural systems in order to use them in various applications.
 
 The main aim of our work is elaboration of mathematical tools which allow giving full description of the CRC circuit. With the help of 2 different articles with different models.
 
@@ -97,6 +97,8 @@ $$\large\frac{du}{dt} = k_{u}s_{4}(Dx) - m_{u}u$$
 $$\large\frac{dw}{dt} = k_{w}s_{5}(Dx) - m_{w}w$$  
 $$\large\frac{dp}{dt} = k_{p}\frac{s_{6}(Dx)h(t-\Delta{t})(t-\Delta{t}^2)}{L + h(t-\Delta{t})(t-\Delta{t})^2}$$ 
 
+![The CRC of the gene networks of the morphogenesis system of Drosophila mechanoreceptors.](CRC_diag.png)
+
 This is the other model that has been created by the second article [4]. This is the differential equation used by the article:
 
 $$\large\frac{dx}{dt} = \frac{\sigma_{1}(Dx) + \sigma_{3}(z) + \sigma_{5}(w)}{(1 + Gy)(1 + Ex)} - k_{x}(1 + p(t-\Delta{t})US)x$$  
@@ -106,19 +108,22 @@ $$\large\frac{du}{dt} = s_{4}(Dx) - k_{u}u$$
 $$\large\frac{dw}{dt} = s_{5}(Dx) - k_{w}w$$  
 $$\large\frac{dp}{dt} = \frac{s_{6}(Dx)h(t-\Delta{t})(t-\Delta{t}^2)}{1 + (t-\Delta{t})^2} -  k_{p}p$$
 
-The positive coefficients m~x~, m~y~, m~z~, m~u~, m~w~ and m~p~  characterize the degradation rate of their corresponding proteins. Parameters D, E, G, S, and U of (1) are time-independent, since the content of DA, EMC, GRO, SINA, and Ub proteins is almost unchanged in the process [4].
+![The other CRC of the gene networks of the morphogenesis system of Drosophila mechanoreceptors.](CRC_diag_2.png)
+
+The positive coefficients m~x~, m~y~, m~z~, m~u~, m~w~ and m~p~  characterize the degradation rate of their corresponding proteins. Parameters D, E, G, S, and U of (1) are time-independent, since the content of DA, EMC, GRO, SINA, and UB proteins is almost unchanged in the process [4].
 
 In the last equation we use a Heaviside function, *h(t)*, that express the decomposition of the process with some delay of *t* = 12.
 
 The sigma function $\sigma$ functions *l* = 1,3,5 and $s_i > 0, i = 3,4,5,6$ are positive and describe the positive  feedback.
 
-Here are all the params and state values.
+Here are all the parameters and state values.
 
 ```{r}
 pander(data.frame("dt_x"= 0,"dt_y"= 0,"dt_z"= 0,"dt_u"= 0,"dt_w"= 0,"dt_p"= 0,"u0"= 0,"w0"= 0,"p0"= 0,"Gro"= 1,"EMC"= 1,"C"= 1,"m1"= 1,"m2"= 1,"m3"= 1,"m4"= 1,"m5"= 1,"m6"= 1,"m7"= 1,"L"= 1,"kx"= 1,"ky"= 1,"kz"= 1,"ku"= 1,"kw"= 1,"kp"= 1,"Gro"= 1,"D"= 2.05,"UB"= 1.17,"SINA"= 5.6,"n1"= 2,"n3"= 2,"n5"= 2,"n1"= 2,"a3"=  3.61,"b3"= 4.96,"c3"= 1.35,"a4"= 4.43,"b4"= 6.09,"c4"= 1.66,"a5"= 8.09,"b5"= 11.13,"c5"= 3.03,"a6"= 2.67,"b6"= 3.67,"c6"= 1.00,"d1"= 7.46,"d3"= 2.77,"d5"= 1.24,"y0"= 3,"x0"= 3 / 20,"z0"= 3 / 20),
        split.table = 80, style = 'rmarkdown')
 ```
 
+The parameters of the first article were used. A total different graph was formed if the other parameters were used. See appendix graph.
 
 \newpage
 
@@ -295,9 +300,9 @@ names(traj) <- c("time", "ASC", "Hairy", "Senseless", "Scratch", "Charlatan", "P
 plotModel(traj)
 ```
 
-The *AS-C* curve increases immediately and reached a steady state, after a while it decreases to about a concentration of below 1. The curve of *Hairy* goes steadily down until *AS-C* decreases. Then the concentration went up.
+The *AS-C* curve immediately increases and reached a steady state, after a while it decreases to about a concentration of below 1. The curve of *Hairy* goes steadily down until *AS-C* decreases. Then the concentration went up.
 
-The other curves *Senseless*, *Scratch* and *Charlatan* all followed the same curve just with a lower value, and it steady went down at the same time point as *AS-C*.
+The other curves *Senseless*, *Scratch* and *Charlatan* all followed the same curve just with a lower value, and it steadily went down at the same time point as *AS-C*.
 
 *Phyllopod* stays the whole time around 0, until all the others one decreases/increases.
 
@@ -367,7 +372,7 @@ plotModel(traj.2)
 
 The curve of *Hairy* goes steadily down until it reached a steady state. *AS-C* curve reaches a steady state pretty quick, after a while it nose dives to about a concentration of 1.
 
-At the same time, other curves *Senseless*, *Scratch* and *Charlatan* all followed the same curve just with a lower value, and it steady went down at the same time point as *AS-C*.
+At the same time, other curves *Senseless*, *Scratch* and *Charlatan* all followed the same curve just with a lower value, and it steadily went down at the same time point as *AS-C*.
 
 *Phyllopod* stays the whole time around 0, until all the others one, except *hairy*, reduce.
 
@@ -379,7 +384,7 @@ We have encountered problems in this paper. There is no concrete experimental da
 
 Analysis of gene networks with the help of mathematical and numerical modeling allows to understand mechanisms of functioning of these systems and to predict their behavior in different conditions.
 
-In the second article, they give other parameter values, but if you go to the site mentioned in the article. You get a graph with the same values as the first article, so we used these values. And we have not played with the parameters values to see what happens. But the first article did changed the values and their outcome was this: 'From the biological point of view, this means a ban on the formation of a mechanoreceptor' [3].
+In the second article, they give other parameter values, but if you go to the site mentioned in the article. You get a graph with the same values as the first article, so we used these values. And we have not played with the parameters values to see what happens. But the first article did change the values and their outcome was this: 'From the biological point of view, this means a ban on the formation of a mechanoreceptor' [3].
 
 As expected, all the values of the first graph are lower than the second one. Alot of the values of the first one are 0. 
 
